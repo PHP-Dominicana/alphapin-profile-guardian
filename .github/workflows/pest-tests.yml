@@ -1,4 +1,4 @@
-name: "PHPStan dev"
+name: "Pest Test"
 
 on:
     push:
@@ -43,4 +43,4 @@ jobs:
         run: "composer update --with='laravel/framework:${{ matrix.laravel }}' --no-interaction --no-progress"
 
       - name: "Execute static analysis"
-        run: "composer run-script test:types"
+        run: "composer run-script test:pest"
