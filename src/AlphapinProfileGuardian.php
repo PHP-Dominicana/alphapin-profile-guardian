@@ -4,4 +4,5 @@ namespace PHPDominicana\AlphapinProfileGuardian;
 
 class AlphapinProfileGuardian
 {
+
 }
