@@ -42,5 +42,5 @@ jobs:
       - name: "Install highest dependencies from composer.json"
         run: "composer update --with='laravel/framework:${{ matrix.laravel }}' --no-interaction --no-progress"
 
-      - name: "Execute static analysis"
+      - name: "Running Pest Tests"
         run: "composer run-script test:pest"
