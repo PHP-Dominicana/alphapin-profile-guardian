@@ -5,31 +5,21 @@ namespace PHPDominicana\AlphapinProfileGuardian;
 class AlphapinProfileGuardian
 {
 
-	/**
-	 * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
-	 */
-	private $pinType;
-	private $pinLength;
-
 	private $pinChars = [
 		'numeric_chars' => '0123456789',
 		'alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
 		'alpha_numeric_chars' => 'abcdefghijklmnopqrstuvwxyz0123456789',
 		'pin_special_chars' => '!@#$%^&*()_-=+{}[]'
 	];
-	/**
-	 * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
-	 */
+	protected $pinType;
+	protected $pinLength;
 	protected $enableSpecialCharsRepeat;
-	/**
-	 * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
-	 */
 	protected $useSpecialChars;
-	/**
-	 * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed
-	 */
 	protected $pinCase;
 
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->pinType = config('alphapin-profile-guardian.pin_type');
@@ -40,6 +30,11 @@ class AlphapinProfileGuardian
 
 	}
 
+	/**
+	 * Generate a PIN
+	 *
+	 * @return void
+	 */
 	public function generatePIN()
 	{
 
