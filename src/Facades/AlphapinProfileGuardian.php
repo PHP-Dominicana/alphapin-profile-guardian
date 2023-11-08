@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Facade;
  */
 class AlphapinProfileGuardian extends Facade
 {
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return \PHPDominicana\AlphapinProfileGuardian\AlphapinProfileGuardian::class;
     }

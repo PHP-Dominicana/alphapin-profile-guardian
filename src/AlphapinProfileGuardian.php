@@ -5,19 +5,22 @@ namespace PHPDominicana\AlphapinProfileGuardian;
 class AlphapinProfileGuardian
 {
 
-	private $pinChars = [
+    /**
+     * @var array<string, string>
+     */
+	private array $pinChars = [
 		'numeric_chars' => '0123456789',
 		'alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
 		'alpha_numeric_chars' => 'abcdefghijklmnopqrstuvwxyz0123456789',
 		'pin_special_chars' => '!@#$%^&*()_-=+{}[]'
 	];
-	protected $pinType;
-	protected $pinLength;
-	protected $enableSpecialCharsRepeat;
-	protected $useSpecialChars;
-	protected $useAdditionalChars;
-	protected $additionalCharsList;
-	protected $pinCase;
+	protected string $pinType;
+	protected string $pinLength;
+	protected string $enableSpecialCharsRepeat;
+	protected bool $useSpecialChars = false;
+	protected bool $useAdditionalChars = false;
+	protected string $additionalCharsList;
+	protected string $pinCase;
 
 	/**
 	 *
@@ -40,7 +43,7 @@ class AlphapinProfileGuardian
 	 *
 	 * @return string
 	 */
-	public function generatePIN()
+	public function generatePIN(): string
 	{
 
 		$chars = $this->pinChars[$this->pinType . '_chars'];
