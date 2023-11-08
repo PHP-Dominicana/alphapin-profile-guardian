@@ -1,5 +1,8 @@
 # Create a simple integration for PIN Profile verification
 
+## The principal objective of this package is create a simple integration for PIN Profile verification, sending a PIN (can be alphanumerice) to the user email
+so he can verify the account
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/php-dominicana/alphapin-profile-guardian.svg?style=flat-square)](https://packagist.org/packages/php-dominicana/alphapin-profile-guardian)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/php-dominicana/alphapin-profile-guardian/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/php-dominicana/alphapin-profile-guardian/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/php-dominicana/alphapin-profile-guardian/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/php-dominicana/alphapin-profile-guardian/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
