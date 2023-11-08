@@ -2,7 +2,7 @@
 
 use PHPDominicana\AlphapinProfileGuardian\AlphapinProfileGuardian;
 
-test('testing generate pin', function () {
+test('testing generate pin len 6', function () {
 
 	$alphapinProfileGuardian = new AlphapinProfileGuardian();
 	$pin = $alphapinProfileGuardian->generatePIN();
