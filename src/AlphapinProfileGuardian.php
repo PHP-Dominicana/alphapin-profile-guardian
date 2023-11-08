@@ -30,7 +30,7 @@ class AlphapinProfileGuardian
 
 		$this->pinType = config('alphapin-profile-guardian.pin_type');
 		$this->pinLength = config('alphapin-profile-guardian.pin_length');
-		$this->pinCase = config('alphapin-profile-guardian.pinLength');
+		$this->pinCase = config('alphapin-profile-guardian.pin_case');
 		$this->useSpecialChars = config('alphapin-profile-guardian.use_special_chars');
 		$this->useAdditionalChars = config('alphapin-profile-guardian.use_additional_chars');
 		$this->additionalCharsList = config('alphapin-profile-guardian.additional_chars_list');
