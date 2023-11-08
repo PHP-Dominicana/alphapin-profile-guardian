@@ -71,6 +71,7 @@
         "analyse": "vendor/bin/phpstan analyse",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint",
+        "test:pest": "vendor/bin/pest",
         "test:types": "phpstan analyse --ansi --memory-limit 256M src",
         "test": [
             "vendor/bin/pest",
