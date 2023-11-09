@@ -43,7 +43,6 @@ test('testing generate pin_case is numeric mixed verifyMinimumChar', function ()
 	Config::set('alphapin-profile-guardian.pin_case', 'lower');
 	$alphapinProfileGuardian = new AlphapinProfileGuardian();
 	$result = $alphapinProfileGuardian->generatePIN();
-	print_r("This is your pin: " . $result . "\n");
 	expect(preg_match('/[A-Z]/', $result))->toBe(0);
 	expect(preg_match('/[a-z]/', $result))->toBe(1);
 	expect(preg_match('/[0-9]/', $result))->toBe(1);
@@ -103,8 +102,6 @@ test('testing generate pin_case is alpha numeric uppercase', function ($range)
 
 	$alphapinProfileGuardian = new AlphapinProfileGuardian();
 	$pin = $alphapinProfileGuardian->generatePIN();
-	echo "test#$range with pin: $pin\n";
-	// pin should have at least one number and one letter
 	expect(preg_match('/[A-Z]/', $pin))->toBe(1);
 	expect(preg_match('/[0-9]/', $pin))->toBe(1);
 
@@ -121,14 +118,12 @@ test('testing generate pin_case have use_special_chars and numeric ', function (
 
 	$alphapinProfileGuardian = new AlphapinProfileGuardian();
 	$pin = $alphapinProfileGuardian->generatePIN();
-	echo "test#$range with pin: $pin\n";
-	// pin should have at least one number and one letter
 	expect(preg_match('/[A-Z]/', $pin))->toBe(1);
 	expect(preg_match('/[0-9]/', $pin))->toBe(1);
 
 })->with('range');
 
-dataset('range', range(0, 201));
+dataset('range', range(0, 200));
 
 test('testing generate pin_case is special chars', function ()
 {

@@ -53,6 +53,54 @@ class AlphapinProfileGuardian
 
 		// Initialize an array to track which types are included
 		$includedTypes = [];
+		$types = $this->getTypes();
+
+		$pin = '';
+		// Generate a random character from each type
+		// min length for the pin will be equal to the size of types selected
+		foreach ($types as $type) {
+
+			$chars = $this->pinChars[$type . '_chars'];
+			$char = $chars[rand(0, strlen($chars) - 1)];
+			$pin .= $char;
+			$includedTypes[$type] = true;
+		}
+
+		$minLength = max($this->pinLength, count($types));
+
+
+		// Fill the PIN to reach the minimum length, ensuring all types are included
+		while (strlen($pin) < $minLength) {
+			$missingTypes = array_diff($types, array_keys($includedTypes));
+
+			if (count($missingTypes) > 1) {
+				$type = $missingTypes[array_rand($missingTypes)];
+			}
+			$chars = $this->pinChars[$type . '_chars'];
+			$char = $chars[rand(0, strlen($chars) - 1)];
+			$pin .= $char;
+
+			if (count($types) > 1) {
+				$includedTypes[$type] = true;
+			}
+		}
+
+		// Shuffle the PIN to randomize the order of characters
+		$pinArray = str_split($pin);
+		shuffle($pinArray);
+
+		return implode('', $pinArray);
+
+	}
+
+	/**
+	 * Get the types of characters to include in the PIN
+	 *
+	 * @return array|string[]
+	 */
+	private function getTypes()
+	{
+
 		$types = [];
 
 		if ($this->pinType == 'numeric') {
@@ -91,41 +139,7 @@ class AlphapinProfileGuardian
 			$types[] = 'pin_special';
 		}
 
-		$pin = '';
-		// Generate a random character from each type
-		// min length for the pin will be equal to the size of types selected
-		foreach ($types as $type) {
-			print_r($type);
-			$chars = $this->pinChars[$type . '_chars'];
-			$char = $chars[rand(0, strlen($chars) - 1)];
-			$pin .= $char;
-			$includedTypes[$type] = true;
-		}
-
-		$minLength = max($this->pinLength, count($types));
-
-
-		// Fill the PIN to reach the minimum length, ensuring all types are included
-		while (strlen($pin) < $minLength) {
-			$missingTypes = array_diff($types, array_keys($includedTypes));
-
-			if (count($missingTypes) > 1) {
-				$type = $missingTypes[array_rand($missingTypes)];
-			}
-			$chars = $this->pinChars[$type . '_chars'];
-			$char = $chars[rand(0, strlen($chars) - 1)];
-			$pin .= $char;
-
-			if (count($types) > 1) {
-				$includedTypes[$type] = true;
-			}
-		}
-
-		// Shuffle the PIN to randomize the order of characters
-		$pinArray = str_split($pin);
-		shuffle($pinArray);
-
-		return implode('', $pinArray);
+		return $types;
 
 	}
 
