@@ -30,16 +30,37 @@ class AlphapinProfileGuardian
 	 */
 	public function __construct()
 	{
+		$this->loadConfiguration();
+	}
 
+	/**
+	 * Load the configuration
+	 *
+	 * @return void
+	 */
+	private function loadConfiguration()
+	{
 		$this->pinType = config('alphapin-profile-guardian.pin_type');
 		$this->pinLength = config('alphapin-profile-guardian.pin_length');
 		$this->pinCase = config('alphapin-profile-guardian.pin_case');
 		$this->useSpecialChars = config('alphapin-profile-guardian.use_special_chars');
 		$this->useAdditionalChars = config('alphapin-profile-guardian.use_additional_chars');
 		$this->pinChars['additional_chars'] = config('alphapin-profile-guardian.additional_chars_list');
+		$this->pinLength = max($this->pinLength, self::MIN_PIN_LENGTH);
+	}
 
-		$this->pinLength = ($this->pinLength < self::MIN_PIN_LENGTH) ? self::MIN_PIN_LENGTH : $this->pinLength;
-
+	/**
+	 * Get a random character from a character set
+	 *
+	 * @param $charSet
+	 *
+	 * @return mixed
+	 * @throws \Exception
+	 */
+	private function getRandomCharacter($charSet)
+	{
+		$charIndex = random_int(0, strlen($charSet) - 1);
+		return $charSet[$charIndex];
 	}
 
 	/**
@@ -61,7 +82,7 @@ class AlphapinProfileGuardian
 		foreach ($types as $type) {
 
 			$chars = $this->pinChars[$type . '_chars'];
-			$char = $chars[rand(0, strlen($chars) - 1)];
+			$char = $this->getRandomCharacter($chars);
 			$pin .= $char;
 			$includedTypes[$type] = true;
 		}
@@ -77,7 +98,7 @@ class AlphapinProfileGuardian
 				$type = $missingTypes[array_rand($missingTypes)];
 			}
 			$chars = $this->pinChars[$type . '_chars'];
-			$char = $chars[rand(0, strlen($chars) - 1)];
+			$char = $this->getRandomCharacter($chars);
 			$pin .= $char;
 
 			if (count($types) > 1) {
@@ -103,27 +124,27 @@ class AlphapinProfileGuardian
 
 		$types = [];
 
-		if ($this->pinType == 'numeric') {
-			$types[] = 'numeric';
-		}
-
-		if ($this->pinType == 'alpha_numeric') {
-			$types[] = 'numeric';
-			if ($this->pinCase == 'lower') {
-				$types[] = 'lower_alpha';
-			}
-			if ($this->pinCase == 'upper') {
-				$types[] = 'upper_alpha';
-			}
-		}
-
-		if ($this->pinType == 'alpha') {
-			if ($this->pinCase == 'lower') {
-				$types[] = 'lower_alpha';
-			}
-			if ($this->pinCase == 'upper') {
-				$types[] = 'upper_alpha';
-			}
+		switch ($this->pinType) {
+			case 'numeric':
+				$types[] = 'numeric';
+				break;
+			case 'alpha_numeric':
+				$types[] = 'numeric';
+				if ($this->pinCase == 'lower') {
+					$types[] = 'lower_alpha';
+				}
+				if ($this->pinCase == 'upper') {
+					$types[] = 'upper_alpha';
+				}
+				break;
+			case 'alpha':
+				if ($this->pinCase == 'lower') {
+					$types[] = 'lower_alpha';
+				}
+				if ($this->pinCase == 'upper') {
+					$types[] = 'upper_alpha';
+				}
+				break;
 		}
 
 		if ($this->pinCase == 'mixed') {
@@ -139,7 +160,7 @@ class AlphapinProfileGuardian
 			$types[] = 'pin_special';
 		}
 
-		return $types;
+		return array_unique($types);
 
 	}
 
