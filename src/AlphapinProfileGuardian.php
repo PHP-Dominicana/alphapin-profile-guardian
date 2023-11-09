@@ -12,9 +12,10 @@ class AlphapinProfileGuardian
 	 */
 	private array $pinChars = [
 		'numeric_chars' => '0123456789',
-		'alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
-		'alpha_numeric_chars' => 'abcdefghijklmnopqrstuvwxyz0123456789',
-		'pin_special_chars' => '!@#$%^&*()_-=+{}[]'
+		'lower_alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
+		'upper_alpha_chars' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+		'pin_special_chars' => '!@#$%^&*()_-=+{}[]',
+		'additional_chars' => '',
 	];
 	protected string $pinType;
 	protected string $pinLength;
@@ -35,8 +36,7 @@ class AlphapinProfileGuardian
 		$this->pinCase = config('alphapin-profile-guardian.pin_case');
 		$this->useSpecialChars = config('alphapin-profile-guardian.use_special_chars');
 		$this->useAdditionalChars = config('alphapin-profile-guardian.use_additional_chars');
-		$this->additionalCharsList = config('alphapin-profile-guardian.additional_chars_list');
-		$this->enableSpecialCharsRepeat = config('alphapin-profile-guardian.enable_special_chars_repeat');
+		$this->pinChars['additional_chars'] = config('alphapin-profile-guardian.additional_chars_list');
 
 		$this->pinLength = ($this->pinLength < self::MIN_PIN_LENGTH) ? self::MIN_PIN_LENGTH : $this->pinLength;
 
@@ -51,205 +51,82 @@ class AlphapinProfileGuardian
 	: string
 	{
 
-		$chars = $this->pinChars[$this->pinType . '_chars'];
-
-		if ($this->pinCase == 'upper') {
-			$chars = strtoupper($chars);
-		}
-
-		if ($this->pinCase == 'mixed' && $this->pinType == 'alpha') {
-			$chars = strtoupper($chars);
-			$chars .= strtolower($chars);
-		}
-
-		if ($this->useSpecialChars) {
-			$chars .= $this->pinChars['pin_special_chars'];
-		}
-
-		if ($this->useAdditionalChars) {
-			$chars .= $this->additionalCharsList;
-		}
-
-		$pin = '';
-
-		for ($i = 0; $i < $this->pinLength; $i++) {
-			$pin .= $chars[rand(0, strlen($chars) - 1)];
-		}
-		print_r($chars);
-
-		return $this->verifyMinimumChar($pin);
-
-		// read from config and generate the PIN
-		// return the PIN
-
-	}
-
-	/**
-	 * Verify if the generated PIN has the minimum required chars
-	 *
-	 * @param string $pin
-	 *
-	 * @return string
-	 */
-	public function verifyMinimumChar(string $pin)
-	: string {
-
-		preg_match('/[a-z]/', $pin) ? $hasLowerLetter = true : $hasLowerLetter = false;
-		preg_match('/[A-Z]/', $pin) ? $hasUpperLetter = true : $hasUpperLetter = false;
-		preg_match('/[0-9]/', $pin) ? $hasNumber = true : $hasNumber = false;
-		preg_match('/[!@#$%^&*()_\-+=\[\]{};:,.<>?]/', $pin) ? $hasSpecialChar = true : $hasSpecialChar = false;
-
+		// Initialize an array to track which types are included
+		$includedTypes = [];
+		$types = [];
 
 		if ($this->pinType == 'numeric') {
-			return $pin;
+			$types[] = 'numeric';
+		}
+
+		if ($this->pinType == 'alpha_numeric') {
+			$types[] = 'numeric';
+			if ($this->pinCase == 'lower') {
+				$types[] = 'lower_alpha';
+			}
+			if ($this->pinCase == 'upper') {
+				$types[] = 'upper_alpha';
+			}
 		}
 
 		if ($this->pinType == 'alpha') {
-			if ($hasLowerLetter && $this->pinCase == 'lower') {
-				return $pin;
+			if ($this->pinCase == 'lower') {
+				$types[] = 'lower_alpha';
 			}
-			if ($hasUpperLetter && $this->pinCase == 'upper') {
-				return $pin;
-			}
-		}
-
-		if ($this->pinType == 'alpha_numeric' && $this->pinCase == 'lower') {
-			if ($hasLowerLetter && $hasNumber) {
-				return $pin;
-			}
-		}
-
-		if ($this->pinType == 'alpha_numeric' && $this->pinCase == 'upper') {
-			if ($hasUpperLetter && $hasNumber) {
-				return $pin;
-			}
-		}
-
-		if ($this->pinType == 'alpha_numeric' && $this->pinCase == 'mixed') {
-			if ($hasUpperLetter && $hasLowerLetter && $hasNumber) {
-				return $pin;
-			}
-		}
-
-		if ($this->pinType == 'alpha_numeric' && !$hasNumber) {
-			$chars = $this->pinChars['numeric_chars'];
-			$newChar = $chars[rand(0, strlen($chars) - 1)];
-			$pin[rand(0, strlen($pin) - 1)] = $newChar;
-			echo "dont have number\n";
-		}
-
-		if ($this->pinCase == 'mixed') {
-			$positionUpper = null;
-			if (!$hasUpperLetter) {
-
-				$chars = $this->pinChars['alpha_chars'];
-				$positionLower = null;
-				$chars = strtoupper($chars);
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-				$positionUpper = rand(0, strlen($pin) - 1);
-				$pin[$positionUpper] = $newChar;
-
-			}
-
-			if (!$hasLowerLetter) {
-
-				$chars = strtoupper($chars);
-				$chars .= strtolower($chars);
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-
-				if ($positionUpper == null) {
-					$positionLower = rand(0, strlen($pin) - 1);
-				}
-
-				$max = strlen($pin) - 1;
-				while ($positionLower == $positionUpper) {
-					$positionLower = rand(0, $max);
-				}
-
-				$pin[$positionLower] = $newChar;
-			}
-		}
-
-		if ($this->useAdditionalChars && !$hasSpecialChar) {
-
-			$chars = $this->pinChars['pin_special_chars'];
-			$newChar = $chars[rand(0, strlen($chars) - 1)];
-			$pin[rand(0, strlen($pin) - 1)] = $newChar;
-
-		}
-
-		return $pin;
-		// @todo need clean up
-		// private array $pinChars = [
-		// 		'numeric_chars' => '0123456789',
-		// 		'alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
-		// 		'alpha_numeric_chars' => 'abcdefghijklmnopqrstuvwxyz0123456789',
-		// 		'pin_special_chars' => '!@#$%^&*()_-=+{}[]'
-		// 	];
-
-		if ($this->pinCase == 'mixed') {
-
-			if (!$hasUpperLetter) {
-
-				$chars = $this->pinChars['alpha_chars'];
-				$chars = strtoupper($chars);
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-				$positionUpper = rand(0, strlen($pin) - 1);
-				$pin[$positionUpper] = $newChar;
-
-			}
-
-			if (!$hasLowerLetter) {
-
-				$chars = $this->pinChars['alpha_chars'];
-				$chars = strtolower($chars);
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-				$positionLower = rand(0, strlen($pin) - 1);
-				$pin[$positionLower] = $newChar;
-
-			}
-
-			if (!$hasNumber) {
-
-				$chars = $this->pinChars['numeric_chars'];
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-				$pin[rand(0, strlen($pin) - 1)] = $newChar;
-
-			}
-		}
-
-		if (!$hasLowerLetter || !$hasUpperLetter) {
-			$chars = $this->pinChars['alpha_chars'];
-			$positionUpper = null;
-			$positionLower = null;
 			if ($this->pinCase == 'upper') {
-				$chars = strtoupper($chars);
-				$newChar = $chars[rand(0, strlen($chars) - 1)];
-				$positionUpper = rand(0, strlen($pin) - 1);
-				$pin[$positionUpper] = $newChar;
+				$types[] = 'upper_alpha';
 			}
-
 		}
 
-		if (($this->pinType == 'alpha_numeric' || $this->pinType == 'numeric') && !$hasNumber) {
-
-			$chars = $this->pinChars['numeric_chars'];
-			$newChar = $chars[rand(0, strlen($chars) - 1)];
-			$pin[rand(0, strlen($pin) - 1)] = $newChar;
-			echo "dont have number\n";
+		if ($this->pinCase == 'mixed') {
+			$types[] = 'lower_alpha';
+			$types[] = 'upper_alpha';
 		}
 
-
-		if ($this->useAdditionalChars && !$hasSpecialChar) {
-
-			$chars = $this->pinChars['pin_special_chars'];
-			$newChar = $chars[rand(0, strlen($chars) - 1)];
-			$pin[rand(0, strlen($pin) - 1)] = $newChar;
-
-			return $pin;
+		if ($this->useAdditionalChars) {
+			$types[] = 'additional_chars';
 		}
 
-		return $pin;
+		if ($this->useSpecialChars) {
+			$types[] = 'pin_special';
+		}
+
+		$pin = '';
+		// Generate a random character from each type
+		// min length for the pin will be equal to the size of types selected
+		foreach ($types as $type) {
+			print_r($type);
+			$chars = $this->pinChars[$type . '_chars'];
+			$char = $chars[rand(0, strlen($chars) - 1)];
+			$pin .= $char;
+			$includedTypes[$type] = true;
+		}
+
+		$minLength = max($this->pinLength, count($types));
+
+
+		// Fill the PIN to reach the minimum length, ensuring all types are included
+		while (strlen($pin) < $minLength) {
+			$missingTypes = array_diff($types, array_keys($includedTypes));
+
+			if (count($missingTypes) > 1) {
+				$type = $missingTypes[array_rand($missingTypes)];
+			}
+			$chars = $this->pinChars[$type . '_chars'];
+			$char = $chars[rand(0, strlen($chars) - 1)];
+			$pin .= $char;
+
+			if (count($types) > 1) {
+				$includedTypes[$type] = true;
+			}
+		}
+
+		// Shuffle the PIN to randomize the order of characters
+		$pinArray = str_split($pin);
+		shuffle($pinArray);
+
+		return implode('', $pinArray);
+
 	}
 
 }
