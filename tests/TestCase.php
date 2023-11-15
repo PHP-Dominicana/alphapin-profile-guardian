@@ -7,10 +7,10 @@ use PHPDominicana\AlphapinProfileGuardian\AlphapinProfileGuardianServiceProvider
 
 class TestCase extends Orchestra
 {
-	protected function getPackageProviders($app)
-	{
-		return [
-			AlphapinProfileGuardianServiceProvider::class,
-		];
-	}
+    protected function getPackageProviders($app)
+    {
+        return [
+            AlphapinProfileGuardianServiceProvider::class,
+        ];
+    }
 }

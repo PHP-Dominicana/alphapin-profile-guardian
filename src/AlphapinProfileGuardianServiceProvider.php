@@ -2,9 +2,9 @@
 
 namespace PHPDominicana\AlphapinProfileGuardian;
 
+use PHPDominicana\AlphapinProfileGuardian\Commands\AlphapinProfileGuardianCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use PHPDominicana\AlphapinProfileGuardian\Commands\AlphapinProfileGuardianCommand;
 
 class AlphapinProfileGuardianServiceProvider extends PackageServiceProvider
 {

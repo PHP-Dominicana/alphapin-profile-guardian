@@ -4,164 +4,163 @@ namespace PHPDominicana\AlphapinProfileGuardian;
 
 class AlphapinProfileGuardian
 {
+    const MIN_PIN_LENGTH = 4;
 
-	const MIN_PIN_LENGTH = 4;
+    /**
+     * @var array<string, string>
+     */
+    private array $pinChars = [
+        'numeric_chars' => '0123456789',
+        'lower_alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
+        'upper_alpha_chars' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'pin_special_chars' => '!@#$%^&*()_-=+{}[]',
+        'additional_chars' => '',
+    ];
 
-	/**
-	 * @var array<string, string>
-	 */
-	private array $pinChars = [
-		'numeric_chars' => '0123456789',
-		'lower_alpha_chars' => 'abcdefghijklmnopqrstuvwxyz',
-		'upper_alpha_chars' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-		'pin_special_chars' => '!@#$%^&*()_-=+{}[]',
-		'additional_chars' => '',
-	];
-	protected string $pinType;
-	protected string $pinLength;
-	protected string $enableSpecialCharsRepeat;
-	protected bool $useSpecialChars = false;
-	protected bool $useAdditionalChars = false;
-	protected string $additionalCharsList;
-	protected string $pinCase;
+    protected string $pinType;
 
-	/**
-	 *
-	 */
-	public function __construct()
-	{
-		$this->loadConfiguration();
-	}
+    protected string $pinLength;
 
-	/**
-	 * Load the configuration
-	 *
-	 * @return void
-	 */
-	private function loadConfiguration()
-	{
-		$this->pinType = config('alphapin-profile-guardian.pin_type');
-		$this->pinLength = config('alphapin-profile-guardian.pin_length');
-		$this->pinCase = config('alphapin-profile-guardian.pin_case');
-		$this->useSpecialChars = config('alphapin-profile-guardian.use_special_chars');
-		$this->useAdditionalChars = config('alphapin-profile-guardian.use_additional_chars');
-		$this->pinChars['additional_chars'] = config('alphapin-profile-guardian.additional_chars_list');
-		$this->pinLength = max($this->pinLength, self::MIN_PIN_LENGTH);
-	}
+    protected string $enableSpecialCharsRepeat;
 
-	/**
-	 * Get a random character from a character set
-	 *
-	 * @param $charSet
-	 *
-	 * @return mixed
-	 * @throws \Exception
-	 */
-	private function getRandomCharacter($charSet)
-	{
-		$charIndex = random_int(0, strlen($charSet) - 1);
-		return $charSet[$charIndex];
-	}
+    protected bool $useSpecialChars = false;
 
-	/**
-	 * Generate a PIN
-	 *
-	 * @return string
-	 */
-	public function generatePIN()
-	: string
-	{
+    protected bool $useAdditionalChars = false;
 
-		// Initialize an array to track which types are included
-		$includedTypes = [];
-		$types = $this->getTypes();
+    protected string $additionalCharsList;
 
-		$pin = '';
-		// Generate a random character from each type
-		// min length for the pin will be equal to the size of types selected
-		foreach ($types as $type) {
+    protected string $pinCase;
 
-			$chars = $this->pinChars[$type . '_chars'];
-			$char = $this->getRandomCharacter($chars);
-			$pin .= $char;
-			$includedTypes[$type] = true;
-		}
+    public function __construct()
+    {
+        $this->loadConfiguration();
+    }
 
-		$minLength = max($this->pinLength, count($types));
+    /**
+     * Load the configuration
+     *
+     * @return void
+     */
+    private function loadConfiguration()
+    {
+        $this->pinType = config('alphapin-profile-guardian.pin_type');
+        $this->pinLength = config('alphapin-profile-guardian.pin_length');
+        $this->pinCase = config('alphapin-profile-guardian.pin_case');
+        $this->useSpecialChars = config('alphapin-profile-guardian.use_special_chars');
+        $this->useAdditionalChars = config('alphapin-profile-guardian.use_additional_chars');
+        $this->pinChars['additional_chars'] = config('alphapin-profile-guardian.additional_chars_list');
+        $this->pinLength = max($this->pinLength, self::MIN_PIN_LENGTH);
+    }
 
+    /**
+     * Get a random character from a character set
+     *
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    private function getRandomCharacter($charSet)
+    {
+        $charIndex = random_int(0, strlen($charSet) - 1);
 
-		// Fill the PIN to reach the minimum length, ensuring all types are included
-		while (strlen($pin) < $minLength) {
-			$missingTypes = array_diff($types, array_keys($includedTypes));
+        return $charSet[$charIndex];
+    }
 
-			if (count($missingTypes) > 1) {
-				$type = $missingTypes[array_rand($missingTypes)];
-			}
-			$chars = $this->pinChars[$type . '_chars'];
-			$char = $this->getRandomCharacter($chars);
-			$pin .= $char;
+    /**
+     * Generate a PIN
+     */
+    public function generatePIN(): string
+    {
 
-			if (count($types) > 1) {
-				$includedTypes[$type] = true;
-			}
-		}
+        // Initialize an array to track which types are included
+        $includedTypes = [];
+        $types = $this->getTypes();
 
-		// Shuffle the PIN to randomize the order of characters
-		$pinArray = str_split($pin);
-		shuffle($pinArray);
+        $pin = '';
+        // Generate a random character from each type
+        // min length for the pin will be equal to the size of types selected
+        foreach ($types as $type) {
 
-		return implode('', $pinArray);
+            $chars = $this->pinChars[$type.'_chars'];
+            $char = $this->getRandomCharacter($chars);
+            $pin .= $char;
+            $includedTypes[$type] = true;
+        }
 
-	}
+        $minLength = max($this->pinLength, count($types));
 
-	/**
-	 * Get the types of characters to include in the PIN
-	 *
-	 * @return array|string[]
-	 */
-	private function getTypes()
-	{
+        // Fill the PIN to reach the minimum length, ensuring all types are included
+        while (strlen($pin) < $minLength) {
+            $missingTypes = array_diff($types, array_keys($includedTypes));
 
-		$types = [];
+            if (count($missingTypes) > 1) {
+                $type = $missingTypes[array_rand($missingTypes)];
+            }
+            $chars = $this->pinChars[$type.'_chars'];
+            $char = $this->getRandomCharacter($chars);
+            $pin .= $char;
 
-		switch ($this->pinType) {
-			case 'numeric':
-				$types[] = 'numeric';
-				break;
-			case 'alpha_numeric':
-				$types[] = 'numeric';
-				if ($this->pinCase == 'lower') {
-					$types[] = 'lower_alpha';
-				}
-				if ($this->pinCase == 'upper') {
-					$types[] = 'upper_alpha';
-				}
-				break;
-			case 'alpha':
-				if ($this->pinCase == 'lower') {
-					$types[] = 'lower_alpha';
-				}
-				if ($this->pinCase == 'upper') {
-					$types[] = 'upper_alpha';
-				}
-				break;
-		}
+            if (count($types) > 1) {
+                $includedTypes[$type] = true;
+            }
+        }
 
-		if ($this->pinCase == 'mixed') {
-			$types[] = 'lower_alpha';
-			$types[] = 'upper_alpha';
-		}
+        // Shuffle the PIN to randomize the order of characters
+        $pinArray = str_split($pin);
+        shuffle($pinArray);
 
-		if ($this->useAdditionalChars) {
-			$types[] = 'additional_chars';
-		}
+        return implode('', $pinArray);
 
-		if ($this->useSpecialChars) {
-			$types[] = 'pin_special';
-		}
+    }
 
-		return array_unique($types);
+    /**
+     * Get the types of characters to include in the PIN
+     *
+     * @return array|string[]
+     */
+    private function getTypes()
+    {
 
-	}
+        $types = [];
 
+        switch ($this->pinType) {
+            case 'numeric':
+                $types[] = 'numeric';
+                break;
+            case 'alpha_numeric':
+                $types[] = 'numeric';
+                if ($this->pinCase == 'lower') {
+                    $types[] = 'lower_alpha';
+                }
+                if ($this->pinCase == 'upper') {
+                    $types[] = 'upper_alpha';
+                }
+                break;
+            case 'alpha':
+                if ($this->pinCase == 'lower') {
+                    $types[] = 'lower_alpha';
+                }
+                if ($this->pinCase == 'upper') {
+                    $types[] = 'upper_alpha';
+                }
+                break;
+        }
+
+        if ($this->pinCase == 'mixed') {
+            $types[] = 'lower_alpha';
+            $types[] = 'upper_alpha';
+        }
+
+        if ($this->useAdditionalChars) {
+            $types[] = 'additional_chars';
+        }
+
+        if ($this->useSpecialChars) {
+            $types[] = 'pin_special';
+        }
+
+        return array_unique($types);
+
+    }
 }
