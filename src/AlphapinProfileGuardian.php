@@ -174,6 +174,7 @@ class AlphapinProfileGuardian
 		$pin = $this->generatePIN();
 		$pin = $this->savePin($pin, $user, $pinExpiration, $type);
 		$this->sendPinNotification($pin, $user, $type);
+		return true;
 	}
 
 	private function savePin(string $pin, $user, string $pinExpiration, mixed $type)
