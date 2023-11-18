@@ -142,3 +142,23 @@ test('testing generate pin_case is special chars', function ()
 	expect(preg_match('/[!@#$%^&*()_\-+=\[\]{};:,.<>?]/', $pin))->toBe(1);
 
 });
+
+
+test('testing generate pin_case is use_additional_chars', function ()
+{
+
+	Config::set('alphapin-profile-guardian.pin_type', 'alpha_numeric');
+	Config::set('alphapin-profile-guardian.pin_case', 'mixed');
+	Config::set('alphapin-profile-guardian.use_additional_chars', true);
+	Config::set('alphapin-profile-guardian.additional_chars', "=");
+	Config::set('alphapin-profile-guardian.pin_length', 4);
+
+	$alphapinProfileGuardian = new AlphapinProfileGuardian();
+	$pin = $alphapinProfileGuardian->generatePIN();
+	// pin should have at least one number and one letter
+	expect(preg_match('/[a-z]/', $pin))->toBe(1);
+	expect(preg_match('/[A-Z]/', $pin))->toBe(1);
+	expect(preg_match('/[0-9]/', $pin))->toBe(1);
+	expect(preg_match('/[!@#$%^&*()_\-+=\[\]{};:,.<>?]/', $pin))->toBe(1);
+
+})->with('range');

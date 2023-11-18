@@ -19,10 +19,8 @@ class AlphapinProfileGuardian
 	];
 	protected string $pinType;
 	protected string $pinLength;
-	protected string $enableSpecialCharsRepeat;
 	protected bool $useSpecialChars = false;
 	protected bool $useAdditionalChars = false;
-	protected string $additionalCharsList;
 	protected string $pinCase;
 
 	/**
@@ -153,7 +151,7 @@ class AlphapinProfileGuardian
 		}
 
 		if ($this->useAdditionalChars) {
-			$types[] = 'additional_chars';
+			$types[] = 'additional';
 		}
 
 		if ($this->useSpecialChars) {
