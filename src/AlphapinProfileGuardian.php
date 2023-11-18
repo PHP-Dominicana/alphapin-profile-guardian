@@ -2,6 +2,9 @@
 
 namespace PHPDominicana\AlphapinProfileGuardian;
 
+use App\Mail\AlphapinEmail;
+use Illuminate\Support\Facades\Mail;
+
 class AlphapinProfileGuardian
 {
 
@@ -162,4 +165,48 @@ class AlphapinProfileGuardian
 
 	}
 
+	public function sendPin($pin, $user, $type = 'email')
+	{
+		$pinExpiration = config('alphapin-profile-guardian.pin_expiration');
+		$pinExpiration = $pinExpiration * 60;
+		$pinExpiration = now()->addSeconds($pinExpiration);
+		$pinExpiration = $pinExpiration->format('Y-m-d H:i:s');
+		$pin = $this->generatePIN();
+		$pin = $this->savePin($pin, $user, $pinExpiration, $type);
+		$this->sendPinNotification($pin, $user, $type);
+	}
+
+	private function savePin(string $pin, $user, string $pinExpiration, mixed $type)
+	{
+		$pin = new AlphapinProfileGuardianModel();
+		$pin->pin = $pin;
+		$pin->user_id = $user->id;
+		$pin->pin_expiration = $pinExpiration;
+		$pin->type = $type;
+		$pin->save();
+		return $pin;
+	}
+
+	private function sendPinNotification($pin, $user, $type)
+	{
+		if ($type == 'email') {
+			$this->sendPinEmail($pin, $user);
+		} else {
+			$this->sendPinSMS($pin, $user);
+		}
+	}
+
+	private function sendPinEmail(string $pin, Object $user)
+	{
+
+		$mailer = config('alphapin-profile-guardian.mailer');
+		Mail::mailer($mailer)->to($user->email)->send(new AlphapinEmail($user->username ?? $user->email, $pin));
+
+	}
+
+	private function sendPinSMS($pin, $user)
+	{
+
+
+	}
 }

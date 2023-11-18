@@ -1,0 +1,1 @@
+%%sms_text%% %%alphapin%%

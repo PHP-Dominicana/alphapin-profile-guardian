@@ -11,6 +11,7 @@ return [
 	'use_additional_chars' => false,
 	'additional_chars_list' => '.,;:!?', // you can add more special chars here
 	// Email configuration
+	'mailer' => 'mailtrap', // mailtrap, smtp
 	'logo' => 'logo.png',
 	'email_title' => 'AlphaPIN Profile Guardian',
 	'email_subtitle' => 'Email Subtitle',
