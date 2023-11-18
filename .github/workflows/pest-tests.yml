@@ -1,4 +1,4 @@
-name: "PHPStan dev"
+name: "Pest tests dev"
 
 on:
     push:
