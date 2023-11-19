@@ -2,6 +2,9 @@
 
 namespace PHPDominicana\AlphapinProfileGuardian;
 
+use App\Mail\AlphapinEmail;
+use Illuminate\Support\Facades\Mail;
+
 class AlphapinProfileGuardian
 {
 
@@ -19,10 +22,8 @@ class AlphapinProfileGuardian
 	];
 	protected string $pinType;
 	protected string $pinLength;
-	protected string $enableSpecialCharsRepeat;
 	protected bool $useSpecialChars = false;
 	protected bool $useAdditionalChars = false;
-	protected string $additionalCharsList;
 	protected string $pinCase;
 
 	/**
@@ -30,6 +31,7 @@ class AlphapinProfileGuardian
 	 */
 	public function __construct()
 	{
+
 		$this->loadConfiguration();
 	}
 
@@ -40,6 +42,7 @@ class AlphapinProfileGuardian
 	 */
 	private function loadConfiguration()
 	{
+
 		$this->pinType = config('alphapin-profile-guardian.pin_type');
 		$this->pinLength = config('alphapin-profile-guardian.pin_length');
 		$this->pinCase = config('alphapin-profile-guardian.pin_case');
@@ -59,7 +62,9 @@ class AlphapinProfileGuardian
 	 */
 	private function getRandomCharacter($charSet)
 	{
+
 		$charIndex = random_int(0, strlen($charSet) - 1);
+
 		return $charSet[$charIndex];
 	}
 
@@ -153,7 +158,7 @@ class AlphapinProfileGuardian
 		}
 
 		if ($this->useAdditionalChars) {
-			$types[] = 'additional_chars';
+			$types[] = 'additional';
 		}
 
 		if ($this->useSpecialChars) {
@@ -164,4 +169,56 @@ class AlphapinProfileGuardian
 
 	}
 
+	public function sendPin($pin, $user, $type = 'email')
+	{
+
+		$pinExpiration = config('alphapin-profile-guardian.pin_expiration');
+		$pinExpiration = $pinExpiration * 60;
+		$pinExpiration = now()->addSeconds($pinExpiration);
+		$pinExpiration = $pinExpiration->format('Y-m-d H:i:s');
+		$this->savePin($pin, $user, $pinExpiration, $type);
+		$this->sendPinNotification($pin, $user, $type);
+
+		return true;
+	}
+
+	private function savePin(string $pin, $user, string $pinExpiration, mixed $type)
+	{
+
+		$alphapin = new AlphapinProfileGuardianModel();
+		$alphapin->pin = $pin;
+		$alphapin->user_id = $user['id'];
+		$alphapin->pin_expiration = $pinExpiration;
+		$alphapin->email = $user['email'];
+		$alphapin->type = $type;
+		$alphapin->save();
+
+		return $alphapin;
+	}
+
+	private function sendPinNotification($pin, $user, $type)
+	{
+
+		if ($type == 'email') {
+			$this->sendPinEmail($pin, $user);
+
+			return;
+		}
+
+		$this->sendPinSMS($pin, $user);
+
+	}
+
+	private function sendPinEmail(string $pin, $user)
+	{
+
+		$mailer = config('alphapin-profile-guardian.mailer');
+		Mail::mailer($mailer)->to($user['email'])->send(new AlphapinEmail($user['username'] ?? $user['email'], $pin));
+
+	}
+
+	private function sendPinSMS($pin, $user)
+	{
+
+	}
 }

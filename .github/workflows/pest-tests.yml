@@ -1,4 +1,4 @@
-name: "PHPStan dev"
+name: "Pest tests dev"
 
 on:
     push:
@@ -44,3 +44,6 @@ jobs:
 
       - name: "Execute static analysis"
         run: "composer run-script test:types"
+
+      - name: "Execute pest test"
+        run: "composer run-script test:pest"

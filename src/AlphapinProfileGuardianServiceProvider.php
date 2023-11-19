@@ -10,15 +10,11 @@ class AlphapinProfileGuardianServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
+
         $package
             ->name('alphapin-profile-guardian')
-            ->hasConfigFile()
-            ->hasViews()
+            ->hasConfigFile('alphapin-profile-guardian')
+            ->hasViews('alphapin-profile-guardian', 'alphapin-profile-guardian')
             ->hasMigration('create_alphapin-profile-guardian_table')
             ->hasCommand(AlphapinProfileGuardianCommand::class);
     }
