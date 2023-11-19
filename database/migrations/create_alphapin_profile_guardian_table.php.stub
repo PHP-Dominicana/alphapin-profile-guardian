@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('alphapin_profile_guardian_table', function (Blueprint $table) {
+        Schema::create('alphapin_profile_guardian', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
             $table->string('email');
